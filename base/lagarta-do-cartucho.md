@@ -1,6 +1,6 @@
 # Lagarta-do-cartucho no milho
 
-Texto de exemplo para a demonstração. Não substitui a recomendação de um agrônomo.
+> Texto de exemplo para a demonstração. Não substitui a recomendação de um agrônomo.
 
 A lagarta-do-cartucho (Spodoptera frugiperda) é uma das principais pragas do milho. Os primeiros sinais são folhas raspadas, com aspecto de janelinhas transparentes, e depois furos e fezes dentro do cartucho da planta.
 

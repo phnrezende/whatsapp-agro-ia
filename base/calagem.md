@@ -1,6 +1,6 @@
 # Calagem e correção da acidez do solo
 
-Texto de exemplo para a demonstração. Não substitui a recomendação de um agrônomo.
+> Texto de exemplo para a demonstração. Não substitui a recomendação de um agrônomo.
 
 A calagem corrige a acidez do solo e fornece cálcio e magnésio às plantas. A quantidade de calcário deve ser calculada a partir da análise de solo, nunca no olho. Sem a análise, o produtor pode gastar com calcário que não precisava ou aplicar menos do que a lavoura pede.
 

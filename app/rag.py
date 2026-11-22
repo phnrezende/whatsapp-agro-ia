@@ -37,6 +37,8 @@ def chunk(text, size=120):
     """Pedaços de ~size palavras, cortados em parágrafos para não partir uma frase ao meio."""
     out, cur = [], []
     for para in re.split(r"\n\s*\n", text):
+        if para.lstrip().startswith(("#", ">")):  # títulos e notas do arquivo não são resposta
+            continue
         words = para.split()
         if cur and len(cur) + len(words) > size:
             out.append(" ".join(cur))

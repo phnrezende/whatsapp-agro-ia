@@ -1,6 +1,6 @@
 # Adubação nitrogenada do milho
 
-Texto de exemplo para a demonstração. Não substitui a recomendação de um agrônomo.
+> Texto de exemplo para a demonstração. Não substitui a recomendação de um agrônomo.
 
 O milho exige bastante nitrogênio. Uma parte pequena vai no plantio e o restante é aplicado em cobertura, quando a planta está entre os estádios V4 e V6, ou seja, com quatro a seis folhas totalmente abertas. É nessa fase que a planta define o potencial de produção.
 

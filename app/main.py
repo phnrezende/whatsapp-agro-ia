@@ -4,22 +4,26 @@ Rotas:
 - GET/POST /webhooks/whatsapp  verificação e mensagens da WhatsApp Cloud API (assinatura X-Hub-Signature-256)
 - POST /webhooks/asaas          eventos de cobrança do Asaas (header asaas-access-token)
 - POST /ask                     só com DEMO=1: a mesma resposta que iria pelo WhatsApp, para testar sem a Meta
+- GET / e POST /chat            só com DEMO=1: chat no navegador (versão online), sem assinatura e com limite diário
 """
 import hashlib
 import hmac
 import logging
 import os
+from collections import Counter
 from datetime import date, timedelta
+from pathlib import Path
 from secrets import compare_digest
 
 import httpx
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 
 from app import rag
 from app.store import Store
 
 log = logging.getLogger("agro")
+PAGE = Path(__file__).with_name("index.html")
 
 
 class UTF8JSONResponse(JSONResponse):
@@ -120,5 +124,34 @@ def create_app(base_dir="base", db_path="agro.db", send=send_whatsapp):
             raise HTTPException(404)
         data = await request.json()
         return {"answer": reply_text(data["phone"], data["question"])}
+
+    # Versão online: chat no navegador, sem assinatura, com limite para não gastar a cota grátis da IA.
+    daily_limit = int(os.environ.get("CHAT_DAILY_LIMIT", "20"))
+    used = Counter()  # shortcut: em memória e zera ao reiniciar; serve para uma demo, não para cobrar
+
+    @app.get("/", response_class=HTMLResponse)
+    def page():
+        if os.environ.get("DEMO") != "1":
+            raise HTTPException(404)
+        return HTMLResponse(PAGE.read_text(encoding="utf-8"))
+
+    @app.post("/chat")
+    async def chat(request: Request):
+        if os.environ.get("DEMO") != "1":
+            raise HTTPException(404)
+        question = str((await request.json()).get("question", "")).strip()[:500]
+        if not question:
+            raise HTTPException(400, "Escreva uma pergunta.")
+        # atrás do proxy do Hugging Face o IP real vem no X-Forwarded-For
+        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "").split(",")[0]
+        key = (ip.strip(), date.today())
+        if used[key] >= daily_limit:
+            raise HTTPException(429, f"Limite de {daily_limit} perguntas por dia nesta demo. Volte amanhã!")
+        used[key] += 1
+        try:
+            return {"answer": rag.answer(base, question, "web"), "left": daily_limit - used[key]}
+        except Exception:
+            log.exception("falha no chat web")
+            return {"answer": ERROR, "left": daily_limit - used[key]}
 
     return app

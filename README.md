@@ -14,6 +14,25 @@ Produtor ──WhatsApp──▶ /webhooks/whatsapp ──▶ assinante ativo? �
 Asaas ──webhook──▶ /webhooks/asaas ──▶ pago: ativa por 31 dias · atraso: bloqueia · cancelou: encerra
 ```
 
+## Versão online
+
+Tem um chat no navegador (`/`) para testar sem WhatsApp nem assinatura. Ele usa um modelo aberto grátis pelo
+Hugging Face, com limite de perguntas por dia. Se a cota grátis acabar, responde com os trechos dos materiais.
+
+**Publicar no Vercel (grátis):**
+
+1. Em https://vercel.com/new importe este repositório do GitHub (não precisa mudar nada; a entrada é o `index.py`).
+2. Em https://huggingface.co/settings/tokens crie um token *fine-grained* com a permissão
+   "Make calls to Inference Providers".
+3. No projeto do Vercel, em **Settings > Environment Variables**, adicione:
+   - `OPENAI_API_KEY` = o token `hf_...`
+   - `OPENAI_BASE_URL` = `https://router.huggingface.co/v1`
+   - `OPENAI_MODEL` = `meta-llama/Llama-3.1-8B-Instruct` (ou outro modelo com "Inference Providers")
+4. Faça um *Redeploy*. A cada push no `main`, o Vercel publica sozinho.
+
+Sem as variáveis, o chat funciona do mesmo jeito, devolvendo os trechos. O `Dockerfile` serve para hospedar em
+qualquer lugar com Docker (porta 7860).
+
 ## O que tem aqui
 
 | Parte | Onde |
@@ -24,6 +43,8 @@ Asaas ──webhook──▶ /webhooks/asaas ──▶ pago: ativa por 31 dias �
 | Asaas: confirmação, atraso e cancelamento, com token do webhook | `app/main.py` |
 | Assinantes e eventos já processados (SQLite) | `app/store.py` |
 | Materiais de exemplo (`.md`, `.txt` ou `.pdf`) | `base/` |
+| Chat web da versão online | `app/index.html` |
+| Entrada do Vercel / imagem Docker | `index.py` / `Dockerfile` |
 | Testes | `tests/test_app.py` |
 
 Cuidados que costumam ficar de fora:
@@ -38,7 +59,7 @@ Cuidados que costumam ficar de fora:
 python -m venv .venv
 .venv\Scripts\activate        # Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-pytest                        # 9 testes
+pytest                        # 13 testes
 ```
 
 Servidor local, sem WhatsApp nem chaves (modo demo):
@@ -47,6 +68,8 @@ Servidor local, sem WhatsApp nem chaves (modo demo):
 set DEMO=1 & set ASAAS_WEBHOOK_TOKEN=teste
 uvicorn app.main:create_app --factory --reload
 ```
+
+Abra http://localhost:8000 para o chat web, ou use a rota `/ask`, que simula o WhatsApp com assinatura:
 
 ```bash
 # sem assinatura: recebe o link de pagamento

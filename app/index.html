@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistente agrícola (demo)</title>
+<style>
+  :root { --bg: #efeae2; --me: #d9fdd3; --bot: #fff; --top: #075e54; --text: #111; --muted: #667; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0b141a; --me: #005c4b; --bot: #202c33; --top: #202c33; --text: #e9edef; --muted: #8696a0; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--text);
+         display: flex; flex-direction: column; height: 100dvh; }
+  header { background: var(--top); color: #fff; padding: 12px 16px; }
+  header small { display: block; opacity: .8; font-size: 13px; }
+  #log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px;
+         max-width: 760px; width: 100%; margin: 0 auto; }
+  .msg { max-width: 85%; padding: 8px 12px; border-radius: 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .me { align-self: flex-end; background: var(--me); }
+  .bot { align-self: flex-start; background: var(--bot); }
+  .hint { color: var(--muted); font-size: 13px; text-align: center; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .chips button { border: 1px solid var(--muted); background: none; color: var(--text); border-radius: 16px;
+                  padding: 4px 10px; cursor: pointer; font: inherit; font-size: 14px; }
+  form { display: flex; gap: 8px; padding: 10px 16px; max-width: 760px; width: 100%; margin: 0 auto; }
+  input { flex: 1; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--muted);
+          background: var(--bot); color: var(--text); font: inherit; }
+  form button { padding: 10px 16px; border-radius: 20px; border: 0; background: #00a884; color: #fff; font: inherit; }
+  button:disabled { opacity: .5; }
+</style>
+</head>
+<body>
+<header>Assistente agrícola <small>Demo online · responde só com base nos materiais técnicos de exemplo</small></header>
+<main id="log" aria-live="polite">
+  <p class="hint">No produto real isto roda no WhatsApp, por assinatura. Aqui é uma demo aberta, com IA grátis e limite de perguntas por dia.</p>
+  <div class="chips">
+    <button type="button">Quando aplicar calcário?</button>
+    <button type="button">Tem lagarta no cartucho do milho, o que faço?</button>
+    <button type="button">Como fazer a adubação de cobertura do milho?</button>
+  </div>
+</main>
+<form id="f">
+  <input id="q" maxlength="500" placeholder="Pergunte sobre calagem, adubação ou pragas" aria-label="Sua pergunta" autocomplete="off" required>
+  <button id="send">Enviar</button>
+</form>
+<script>
+  const log = document.getElementById("log"), q = document.getElementById("q"), send = document.getElementById("send");
+  function add(text, who) {
+    const d = document.createElement("div");
+    d.className = "msg " + who; d.textContent = text;
+    log.appendChild(d); log.scrollTop = log.scrollHeight; return d;
+  }
+  async function ask(question) {
+    add(question, "me"); send.disabled = true;
+    const wait = add("digitando…", "bot");
+    try {
+      const r = await fetch("chat", { method: "POST", headers: { "content-type": "application/json" },
+                                      body: JSON.stringify({ question }) });
+      const data = await r.json();
+      wait.textContent = r.ok ? data.answer + (data.left <= 5 ? `\n\n(${data.left} perguntas restantes hoje)` : "")
+                              : data.detail || "Erro ao responder.";
+    } catch { wait.textContent = "Sem conexão com o servidor. Tente de novo."; }
+    send.disabled = false; q.focus();
+  }
+  document.getElementById("f").onsubmit = e => { e.preventDefault(); const t = q.value.trim(); if (t) { q.value = ""; ask(t); } };
+  document.querySelectorAll(".chips button").forEach(b => b.onclick = () => ask(b.textContent));
+</script>
+</body>
+</html>

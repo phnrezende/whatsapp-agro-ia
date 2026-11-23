@@ -1,5 +1,9 @@
 # Assistente agrícola no WhatsApp (demo)
 
+> **EN:** WhatsApp AI assistant for farmers: answers only from technical documents (RAG with Dify/OpenAI), refuses off-topic questions and unlocks access through paid subscriptions (Asaas webhooks). Python, FastAPI, tests. **Live demo: https://whatsapp-agro-ia.vercel.app**
+
+![Demo online: resposta sobre lagarta no milho e recusa de pergunta fora do assunto](docs/demo-web.jpg)
+
 Um assistente de agronomia no WhatsApp, por assinatura mensal. Ele responde com base em materiais técnicos e libera ou bloqueia o acesso sozinho conforme o pagamento no Asaas.
 
 **Teste online: https://whatsapp-agro-ia.vercel.app**

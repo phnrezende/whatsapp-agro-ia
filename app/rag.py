@@ -124,7 +124,7 @@ def ask_llm(question, sources):
                        {"role": "system", "content":
                         "Você é um assistente agrícola, falando com produtores rurais pelo WhatsApp. Responda em "
                         "português simples e curto, usando SOMENTE os trechos abaixo, e cite a fonte entre "
-                        "colchetes. Se os trechos não responderem a pergunta, diga exatamente: " + NOT_FOUND},
+                        "colchetes. Texto simples, sem markdown (nada de ** ou #). Se os trechos não responderem a pergunta, diga exatamente: " + NOT_FOUND},
                        {"role": "user", "content": f"Trechos:\n{sources}\n\nPergunta: {question}"}]})
     r.raise_for_status()
     return r.json()["choices"][0]["message"]["content"]

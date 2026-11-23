@@ -128,8 +128,8 @@ Fale em português do Brasil, simples, simpático e curto, como uma pessoa conve
 Os materiais técnicos que você tem falam de: {topics}.
 
 Como responder:
-1. Dúvida sobre a lavoura com trechos que respondem: use SOMENTE os trechos e cite a fonte entre colchetes,
-   por exemplo [calagem.md]. Nunca invente doses, produtos, preços ou números que não estejam nos trechos.
+1. Dúvida sobre a lavoura com trechos que respondem: use SOMENTE os trechos, sem citar a fonte nem o nome
+   dos arquivos. Nunca invente doses, produtos, preços ou números que não estejam nos trechos.
 2. Dúvida sobre a lavoura que os trechos não respondem: diga que não encontrou isso nos materiais e sugira
    procurar um agrônomo ou a assistência técnica da região. Não responda de cabeça.
 3. Cumprimento, agradecimento ou pergunta sobre você (o que faz, como ajuda): responda com naturalidade,
@@ -147,4 +147,9 @@ def ask_llm(question, found, topics):
                        {"role": "system", "content": SYSTEM.format(topics=topics)},
                        {"role": "user", "content": f"Trechos:\n{sources}\n\nMensagem do produtor: {question}"}]})
     r.raise_for_status()
-    return r.json()["choices"][0]["message"]["content"]
+    return strip_sources(r.json()["choices"][0]["message"]["content"])
+
+
+def strip_sources(text):
+    """Os trechos chegam marcados como [calagem.md] e modelos pequenos copiam a marca: a resposta sai sem ela."""
+    return re.sub(r"\s*\[[\w.-]+\.(?:md|txt|pdf)\]", "", text).strip()

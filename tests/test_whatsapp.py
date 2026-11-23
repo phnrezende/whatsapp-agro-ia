@@ -147,3 +147,9 @@ def test_llm_gets_questions_without_sources_to_handle_small_talk(monkeypatch):
     assert rag.answer(rag.Base("base"), "como você pode me ajudar?", PHONE) == "Eu tiro dúvidas da lavoura!"
     assert "(nenhum trecho encontrado)" in sent["messages"][1]["content"]
     assert "calagem" in sent["messages"][0]["content"]  # os assuntos da base vão no prompt
+
+
+def test_ai_answer_has_no_source_tags():
+    text = "Meta de 60% [calagem.md]. Aplique antes do plantio [calagem.md]. Monitore [lagarta-do-cartucho.md]."
+    assert rag.strip_sources(text) == "Meta de 60%. Aplique antes do plantio. Monitore."
+    assert rag.strip_sources("Oi! Posso ajudar.") == "Oi! Posso ajudar."

@@ -14,7 +14,7 @@ Produtor ──WhatsApp──▶ /webhooks/whatsapp ──▶ assinante ativo? �
                                     Dify (agente do cliente)  ou  base local + OpenAI
                                                    │
                                                    ▼
-                                      resposta com a fonte, pelo WhatsApp
+                                       resposta pelo WhatsApp
 
 Asaas ──webhook──▶ /webhooks/asaas ──▶ pago: ativa por 31 dias · atraso: bloqueia · cancelou: encerra
 ```
@@ -32,7 +32,7 @@ Navegador ──pergunta──▶ /chat ──▶ limite de 20 perguntas por dia
                      busca os trechos nos materiais (BM25, em base/)
                                         │
                                         ▼
-               IA grátis do Groq responde só com esses trechos e cita a fonte
+               IA grátis do Groq responde só com esses trechos
                                         │ se a cota grátis acabar ou a IA cair
                                         ▼
                devolve o próprio trecho + pop-up avisando que é uma resposta padrão
@@ -92,7 +92,7 @@ Cuidados que costumam ficar de fora:
 python -m venv .venv
 .venv\Scripts\activate        # Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-pytest                        # 17 testes
+pytest                        # 18 testes
 ```
 
 Produção (WhatsApp), local, sem WhatsApp nem chaves (modo demo):

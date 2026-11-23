@@ -120,7 +120,7 @@ def ask_llm(question, sources):
     base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
     r = httpx.post(base_url + "/chat/completions", timeout=60,
                    headers={"Authorization": "Bearer " + os.environ["OPENAI_API_KEY"]},
-                   json={"model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"), "max_tokens": 400, "messages": [
+                   json={"model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"), "max_tokens": 1500, "messages": [
                        {"role": "system", "content":
                         "Você é um assistente agrícola, falando com produtores rurais pelo WhatsApp. Responda em "
                         "português simples e curto, usando SOMENTE os trechos abaixo, e cite a fonte entre "

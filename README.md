@@ -26,7 +26,7 @@ Groq, com limite de perguntas por dia. Se a cota grátis acabar, responde com os
 3. No projeto do Vercel, em **Settings > Environment Variables**, adicione:
    - `OPENAI_API_KEY` = a chave `gsk_...`
    - `OPENAI_BASE_URL` = `https://api.groq.com/openai/v1`
-   - `OPENAI_MODEL` = `llama-3.1-8b-instant`
+   - `OPENAI_MODEL` = `openai/gpt-oss-20b`
 4. Faça um *Redeploy*. A cada push no `main`, o Vercel publica sozinho.
 
 Sem as variáveis, o chat funciona do mesmo jeito, devolvendo os trechos. O `Dockerfile` serve para hospedar em

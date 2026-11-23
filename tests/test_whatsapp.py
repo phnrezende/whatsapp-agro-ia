@@ -126,3 +126,24 @@ def test_llm_failure_falls_back_to_sources(monkeypatch):
         raise httpx.ConnectError("sem cota")
     monkeypatch.setattr(rag.httpx, "post", boom)
     assert "calagem.md" in rag.answer(rag.Base("base"), "quando aplicar calcário?", PHONE)
+
+
+def test_llm_gets_questions_without_sources_to_handle_small_talk(monkeypatch):
+    monkeypatch.delenv("DIFY_API_KEY", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "gsk_x")
+    sent = {}
+
+    class Resp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"choices": [{"message": {"content": "Eu tiro dúvidas da lavoura!"}}]}
+
+    def fake_post(url, **kw):
+        sent.update(kw["json"])
+        return Resp()
+    monkeypatch.setattr(rag.httpx, "post", fake_post)
+    assert rag.answer(rag.Base("base"), "como você pode me ajudar?", PHONE) == "Eu tiro dúvidas da lavoura!"
+    assert "(nenhum trecho encontrado)" in sent["messages"][1]["content"]
+    assert "calagem" in sent["messages"][0]["content"]  # os assuntos da base vão no prompt

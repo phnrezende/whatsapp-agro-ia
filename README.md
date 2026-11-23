@@ -92,7 +92,7 @@ Cuidados que costumam ficar de fora:
 python -m venv .venv
 .venv\Scripts\activate        # Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-pytest                        # 16 testes
+pytest                        # 17 testes
 ```
 
 Produção (WhatsApp), local, sem WhatsApp nem chaves (modo demo):

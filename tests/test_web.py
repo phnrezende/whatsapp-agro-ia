@@ -39,3 +39,9 @@ def test_llm_failure_is_flagged_for_the_popup(client, monkeypatch):
 
 def test_whatsapp_routes_still_there(client):
     assert client.post("/webhooks/asaas").status_code == 401
+
+
+def test_bad_body_is_400_not_500(client):
+    assert client.post("/chat", content="Como voc\xea".encode("latin-1"),
+                       headers={"content-type": "application/json"}).status_code == 400
+    assert client.post("/chat", json=["lista"]).status_code == 400

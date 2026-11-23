@@ -32,7 +32,11 @@ def create_app(base_dir="base", db_path="agro.db", **kwargs):
 
     @app.post("/chat")
     async def chat(request: Request):
-        question = str((await request.json()).get("question", "")).strip()[:500]
+        try:
+            data = await request.json()
+        except ValueError:  # JSON inválido ou texto fora de UTF-8: erro do cliente, não do servidor
+            raise HTTPException(400, "Mensagem inválida.")
+        question = str(data.get("question", "") if isinstance(data, dict) else "").strip()[:500]
         if not question:
             raise HTTPException(400, "Escreva uma pergunta.")
         # atrás do proxy (Vercel) o IP real vem no X-Forwarded-For

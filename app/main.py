@@ -142,7 +142,7 @@ def create_app(base_dir="base", db_path="agro.db", send=send_whatsapp):
         question = str((await request.json()).get("question", "")).strip()[:500]
         if not question:
             raise HTTPException(400, "Escreva uma pergunta.")
-        # atrás do proxy do Hugging Face o IP real vem no X-Forwarded-For
+        # atrás do proxy (Vercel) o IP real vem no X-Forwarded-For
         ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "").split(",")[0]
         key = (ip.strip(), date.today())
         if used[key] >= daily_limit:

@@ -3,8 +3,8 @@
 Busca os trechos mais relevantes da base (BM25) e responde por um destes caminhos, o primeiro configurado:
 1. Dify (DIFY_API_KEY): o agente que o cliente já tem; a base de conhecimento fica no Dify.
 2. OpenAI (OPENAI_API_KEY): os trechos achados aqui vão no prompt, com a ordem de responder só com eles.
-   Qualquer API no formato da OpenAI serve: com OPENAI_BASE_URL=https://router.huggingface.co/v1 e um token
-   do Hugging Face no OPENAI_API_KEY, usa um modelo aberto da cota grátis.
+   Qualquer API no formato da OpenAI serve: com OPENAI_BASE_URL=https://api.groq.com/openai/v1 e uma chave
+   do Groq no OPENAI_API_KEY, usa um modelo aberto do plano grátis.
 3. Nenhum: devolve os próprios trechos, com a fonte (modo demo, sem chave).
 """
 import logging

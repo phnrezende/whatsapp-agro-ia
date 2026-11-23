@@ -17,17 +17,16 @@ Asaas ──webhook──▶ /webhooks/asaas ──▶ pago: ativa por 31 dias �
 ## Versão online
 
 Tem um chat no navegador (`/`) para testar sem WhatsApp nem assinatura. Ele usa um modelo aberto grátis pelo
-Hugging Face, com limite de perguntas por dia. Se a cota grátis acabar, responde com os trechos dos materiais.
+Groq, com limite de perguntas por dia. Se a cota grátis acabar, responde com os trechos dos materiais.
 
 **Publicar no Vercel (grátis):**
 
 1. Em https://vercel.com/new importe este repositório do GitHub (não precisa mudar nada; a entrada é o `index.py`).
-2. Em https://huggingface.co/settings/tokens crie um token *fine-grained* com a permissão
-   "Make calls to Inference Providers".
+2. Em https://console.groq.com/keys crie uma chave (grátis, sem cartão).
 3. No projeto do Vercel, em **Settings > Environment Variables**, adicione:
-   - `OPENAI_API_KEY` = o token `hf_...`
-   - `OPENAI_BASE_URL` = `https://router.huggingface.co/v1`
-   - `OPENAI_MODEL` = `meta-llama/Llama-3.1-8B-Instruct` (ou outro modelo com "Inference Providers")
+   - `OPENAI_API_KEY` = a chave `gsk_...`
+   - `OPENAI_BASE_URL` = `https://api.groq.com/openai/v1`
+   - `OPENAI_MODEL` = `llama-3.1-8b-instant`
 4. Faça um *Redeploy*. A cada push no `main`, o Vercel publica sozinho.
 
 Sem as variáveis, o chat funciona do mesmo jeito, devolvendo os trechos. O `Dockerfile` serve para hospedar em

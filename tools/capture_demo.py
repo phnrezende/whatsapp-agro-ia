@@ -8,7 +8,7 @@ from datetime import date
 from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app.main import create_app  # noqa: E402
+from app.whatsapp.main import create_app  # noqa: E402
 
 os.environ.update(DEMO="1", ASAAS_WEBHOOK_TOKEN="teste", PAYMENT_LINK="https://www.asaas.com/c/assinatura-demo")
 for k in ("DIFY_API_KEY", "OPENAI_API_KEY", "WHATSAPP_TOKEN"):

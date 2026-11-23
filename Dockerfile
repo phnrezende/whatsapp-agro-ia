@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir --user -r requirements.txt
 COPY --chown=user . .
 ENV DEMO=1 PATH=/home/user/.local/bin:$PATH
 EXPOSE 7860
-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "7860", "--proxy-headers"]
+CMD ["uvicorn", "app.web.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "7860", "--proxy-headers"]

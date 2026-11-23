@@ -21,7 +21,7 @@ Groq, com limite de perguntas por dia. Se a cota grátis acabar, responde com os
 
 **Publicar no Vercel (grátis):**
 
-1. Em https://vercel.com/new importe este repositório do GitHub (não precisa mudar nada; a entrada é o `index.py`).
+1. Em https://vercel.com/new importe este repositório do GitHub (não precisa mudar nada; a entrada é o `index.py`, que sobe `app/web/`).
 2. Em https://console.groq.com/keys crie uma chave (grátis, sem cartão).
 3. No projeto do Vercel, em **Settings > Environment Variables**, adicione:
    - `OPENAI_API_KEY` = a chave `gsk_...`
@@ -34,17 +34,25 @@ qualquer lugar com Docker (porta 7860).
 
 ## O que tem aqui
 
-| Parte | Onde |
-|---|---|
-| Busca nos materiais (BM25) e resposta só com o que está neles | `app/rag.py` |
-| Integração com o **Dify** (o agente que o cliente já tem) ou com a OpenAI | `app/rag.py` |
-| WhatsApp Cloud API: verificação, assinatura HMAC da Meta e envio de respostas | `app/main.py` |
-| Asaas: confirmação, atraso e cancelamento, com token do webhook | `app/main.py` |
-| Assinantes e eventos já processados (SQLite) | `app/store.py` |
-| Materiais de exemplo (`.md`, `.txt` ou `.pdf`) | `base/` |
-| Chat web da versão online | `app/index.html` |
-| Entrada do Vercel / imagem Docker | `index.py` / `Dockerfile` |
-| Testes | `tests/test_app.py` |
+```
+app/
+├── core/          compartilhado pelas duas versões
+│   ├── rag.py       busca nos materiais (BM25) e resposta pelo Dify, OpenAI ou Groq
+│   └── store.py     assinantes e eventos já processados (SQLite)
+├── whatsapp/      versão de produção (pronta para implementar no cliente)
+│   └── main.py      webhooks do WhatsApp Cloud API e do Asaas, rota /ask de teste
+└── web/           só para a demo online
+    ├── main.py      o app do WhatsApp + chat no navegador (/ e /chat), limite diário
+    └── index.html   página do chat, aviso de demo e pop-up de cota grátis esgotada
+base/              materiais de exemplo (.md, .txt ou .pdf)
+tests/             test_whatsapp.py (produção) e test_web.py (demo)
+tools/             capture_demo.py, que gera os dados do vídeo
+index.py           entrada do Vercel (versão web)
+Dockerfile         imagem Docker da versão web (porta 7860)
+```
+
+Para o cliente, só `app/core/` e `app/whatsapp/` importam. `app/web/`, `index.py` e o `Dockerfile` podem ser
+apagados sem afetar nada da produção.
 
 Cuidados que costumam ficar de fora:
 - **Resposta inventada:** se a pergunta não está nos materiais, ele diz que não sabe e indica um agrônomo.
@@ -58,17 +66,19 @@ Cuidados que costumam ficar de fora:
 python -m venv .venv
 .venv\Scripts\activate        # Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-pytest                        # 13 testes
+pytest                        # 15 testes
 ```
 
-Servidor local, sem WhatsApp nem chaves (modo demo):
+Produção (WhatsApp), local, sem WhatsApp nem chaves (modo demo):
 
 ```bash
 set DEMO=1 & set ASAAS_WEBHOOK_TOKEN=teste
-uvicorn app.main:create_app --factory --reload
+uvicorn app.whatsapp.main:create_app --factory --reload
 ```
 
-Abra http://localhost:8000 para o chat web, ou use a rota `/ask`, que simula o WhatsApp com assinatura:
+Para a versão web, troque por `app.web.main:create_app` e abra http://localhost:8000.
+
+A rota `/ask` simula o WhatsApp com assinatura:
 
 ```bash
 # sem assinatura: recebe o link de pagamento

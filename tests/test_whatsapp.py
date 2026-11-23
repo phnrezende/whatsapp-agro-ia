@@ -6,8 +6,8 @@ from datetime import date, timedelta
 import pytest
 from fastapi.testclient import TestClient
 
-from app import rag
-from app.main import PAYWALL, create_app
+from app.core import rag
+from app.whatsapp.main import PAYWALL, create_app
 
 PHONE = "5527999990000"
 
@@ -115,26 +115,6 @@ def test_whatsapp_verification(env):
     ok = {"hub.mode": "subscribe", "hub.verify_token": "verify-me", "hub.challenge": "123"}
     assert client.get("/webhooks/whatsapp", params=ok).text == "123"
     assert client.get("/webhooks/whatsapp", params={**ok, "hub.verify_token": "x"}).status_code == 403
-
-
-def test_web_chat_answers_without_subscription_and_limits(env, monkeypatch):
-    client, _ = env
-    assert "<form" in client.get("/").text
-    r = client.post("/chat", json={"question": "quando aplicar calcário?"})
-    assert "calagem.md" in r.json()["answer"]
-    assert client.post("/chat", json={"question": "  "}).status_code == 400
-    monkeypatch.setenv("DEMO", "")
-    assert client.post("/chat", json={"question": "calagem"}).status_code == 404
-
-
-def test_web_chat_daily_limit(monkeypatch, tmp_path):
-    monkeypatch.setenv("DEMO", "1")
-    monkeypatch.setenv("CHAT_DAILY_LIMIT", "2")
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("DIFY_API_KEY", raising=False)
-    client = TestClient(create_app("base", str(tmp_path / "t.db")))
-    codes = [client.post("/chat", json={"question": "calagem"}).status_code for _ in range(3)]
-    assert codes == [200, 200, 429]
 
 
 def test_llm_failure_falls_back_to_sources(monkeypatch):

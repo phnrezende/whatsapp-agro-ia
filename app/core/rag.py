@@ -90,7 +90,7 @@ class Base:
         return [self.chunks[i] for _, i in sorted(scored, reverse=True)[:k]]
 
 
-def answer(base, question, user):
+def answer(base, question, user, on_llm_error=None):
     if os.environ.get("DIFY_API_KEY"):
         # shortcut: each message starts a new Dify conversation; keep conversation_id per user for follow-ups
         r = httpx.post(os.environ.get("DIFY_BASE_URL", "https://api.dify.ai") + "/v1/chat-messages", timeout=60,
@@ -111,6 +111,8 @@ def answer(base, question, user):
             return ask_llm(question, sources)
         except httpx.HTTPError:  # cota grátis acabou ou modelo fora do ar: os trechos ainda respondem
             log.exception("falha no modelo; respondendo com os trechos")
+            if on_llm_error:
+                on_llm_error()
 
     best_name, best_text = found[0]
     return f"Pelos materiais técnicos ({best_name}):\n\n{best_text}"

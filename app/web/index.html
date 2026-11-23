@@ -28,6 +28,13 @@
           background: var(--bot); color: var(--text); font: inherit; }
   form button { padding: 10px 16px; border-radius: 20px; border: 0; background: #00a884; color: #fff; font: inherit; }
   button:disabled { opacity: .5; }
+  dialog { max-width: min(440px, calc(100vw - 32px)); border: 0; border-radius: 12px; padding: 20px;
+           background: var(--bot); color: var(--text); box-shadow: 0 10px 40px #0006; }
+  dialog::backdrop { background: #0008; }
+  dialog h2 { margin: 0 0 8px; font-size: 18px; }
+  dialog p { margin: 0 0 12px; }
+  dialog button { width: 100%; padding: 10px; border-radius: 20px; border: 0; background: #00a884; color: #fff;
+                  font: inherit; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -40,12 +47,29 @@
     <button type="button">Como fazer a adubação de cobertura do milho?</button>
   </div>
 </main>
+<dialog id="aviso">
+  <h2>Isto é só uma demonstração</h2>
+  <p>Esta versão online usa uma IA gratuita e mais fraca, só como exemplo. O assistente foi feito para rodar com
+     modelos melhores, como o GPT ou um agente no Dify.</p>
+  <p>Como a cota grátis da IA é limitada, ela pode acabar por alguns momentos. Quando isso acontecer, você vai
+     receber os trechos dos materiais técnicos em vez de uma resposta escrita pela IA.</p>
+  <form method="dialog"><button>Entendi, quero testar</button></form>
+</dialog>
+<dialog id="semTokens">
+  <h2>Acabaram os tokens da IA grátis</h2>
+  <p>A cota gratuita da IA acabou por enquanto, então você vai ver respostas padrão, com os trechos dos materiais
+     técnicos. Isto é apenas um teste. Tente de novo mais tarde para ver a IA respondendo.</p>
+  <form method="dialog"><button>Ok</button></form>
+</dialog>
 <form id="f">
   <input id="q" maxlength="500" placeholder="Pergunte sobre calagem, adubação ou pragas" aria-label="Sua pergunta" autocomplete="off" required>
   <button id="send">Enviar</button>
 </form>
 <script>
   const log = document.getElementById("log"), q = document.getElementById("q"), send = document.getElementById("send");
+  const semTokens = document.getElementById("semTokens");
+  let avisouSemTokens = false;  // o pop-up aparece uma vez por visita, não a cada pergunta
+  document.getElementById("aviso").showModal();
   function add(text, who) {
     const d = document.createElement("div");
     d.className = "msg " + who; d.textContent = text;
@@ -60,6 +84,7 @@
       const data = await r.json();
       wait.textContent = r.ok ? data.answer + (data.left <= 5 ? `\n\n(${data.left} perguntas restantes hoje)` : "")
                               : data.detail || "Erro ao responder.";
+      if (r.ok && data.fallback && !avisouSemTokens) { avisouSemTokens = true; semTokens.showModal(); }
     } catch { wait.textContent = "Sem conexão com o servidor. Tente de novo."; }
     send.disabled = false; q.focus();
   }

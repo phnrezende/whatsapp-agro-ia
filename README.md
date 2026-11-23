@@ -2,6 +2,11 @@
 
 Um assistente de agronomia no WhatsApp, por assinatura mensal. Ele responde com base em materiais técnicos e libera ou bloqueia o acesso sozinho conforme o pagamento no Asaas.
 
+**Teste online: https://whatsapp-agro-ia.vercel.app**
+
+> O projeto foi feito para rodar com o **GPT (OpenAI)** ou com um agente no **Dify**, como descrito abaixo.
+> O site acima é só uma demonstração: usa uma IA gratuita e mais fraca (Groq), sem WhatsApp e sem assinatura.
+
 ```
 Produtor ──WhatsApp──▶ /webhooks/whatsapp ──▶ assinante ativo? ──não──▶ link de pagamento
                                                    │ sim
@@ -14,10 +19,31 @@ Produtor ──WhatsApp──▶ /webhooks/whatsapp ──▶ assinante ativo? �
 Asaas ──webhook──▶ /webhooks/asaas ──▶ pago: ativa por 31 dias · atraso: bloqueia · cancelou: encerra
 ```
 
-## Versão online
+## Versão online (demo)
 
-Tem um chat no navegador (`/`) para testar sem WhatsApp nem assinatura. Ele usa um modelo aberto grátis pelo
-Groq, com limite de perguntas por dia. Se a cota grátis acabar, responde com os trechos dos materiais.
+Em https://whatsapp-agro-ia.vercel.app tem um chat no navegador para testar sem WhatsApp nem assinatura.
+
+Como funciona:
+
+```
+Navegador ──pergunta──▶ /chat ──▶ limite de 20 perguntas por dia por IP
+                                        │
+                                        ▼
+                     busca os trechos nos materiais (BM25, em base/)
+                                        │
+                                        ▼
+               IA grátis do Groq responde só com esses trechos e cita a fonte
+                                        │ se a cota grátis acabar ou a IA cair
+                                        ▼
+               devolve o próprio trecho + pop-up avisando que é uma resposta padrão
+```
+
+- Ao abrir a página, um aviso explica que é uma demo com IA gratuita e que a cota pode acabar por um tempo.
+- A busca e a regra de "não inventar" são as mesmas da versão do WhatsApp (`app/core/`). Só muda o modelo:
+  aqui é o `openai/gpt-oss-20b` do Groq, que é grátis; em produção, o GPT ou o agente do Dify.
+- Pergunta fora dos materiais recebe "não encontrei" e a indicação de um agrônomo, nos dois casos.
+- O Groq funciona porque usa o mesmo formato de API da OpenAI: o código é o mesmo, só mudam as variáveis
+  `OPENAI_BASE_URL`, `OPENAI_MODEL` e `OPENAI_API_KEY`.
 
 **Publicar no Vercel (grátis):**
 

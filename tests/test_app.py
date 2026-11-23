@@ -52,10 +52,19 @@ def test_unknown_question_is_not_made_up():
     assert rag.answer(rag.Base("base"), "qual o preço do boi gordo", PHONE) == rag.NOT_FOUND
 
 
+def test_greeting_gets_a_welcome_not_a_refusal():
+    base = rag.Base("base")
+    for hello in ("Oi", "Bom dia!", "olá, tudo bem?", "E aí"):
+        assert rag.answer(base, hello, PHONE) == rag.GREETING, hello
+    # cumprimento junto com pergunta continua sendo pergunta
+    assert "calagem.md" in rag.answer(base, "Boa noite, quando aplicar calcário?", PHONE)
+
+
 def test_non_subscriber_gets_payment_link(env):
     client, _ = env
-    assert client.post("/ask", json={"phone": PHONE, "question": "calagem"}).json()["answer"] == \
-        PAYWALL.format(link="https://asaas.test/pagar")
+    r = client.post("/ask", json={"phone": PHONE, "question": "calagem"})
+    assert r.json()["answer"] == PAYWALL.format(link="https://asaas.test/pagar")
+    assert r.headers["content-type"] == "application/json; charset=utf-8"  # clientes antigos dependem do charset
 
 
 def test_payment_unlocks_then_overdue_blocks(env):

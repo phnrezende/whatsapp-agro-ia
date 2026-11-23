@@ -14,12 +14,16 @@ from secrets import compare_digest
 
 import httpx
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 
 from app import rag
 from app.store import Store
 
 log = logging.getLogger("agro")
+
+
+class UTF8JSONResponse(JSONResponse):
+    media_type = "application/json; charset=utf-8"  # sem o charset, o PowerShell 5.1 lê os acentos errado
 
 PAYWALL = ("Olá! Eu sou o assistente agrícola. Para tirar suas dúvidas sobre a lavoura, ative sua assinatura "
            "mensal neste link: {link}\nAssim que o pagamento for confirmado, eu te aviso por aqui.")
@@ -33,7 +37,7 @@ ERROR = "Tive um problema para responder agora. Tente de novo em alguns minutos.
 def send_whatsapp(to, text):
     token, number_id = os.environ.get("WHATSAPP_TOKEN"), os.environ.get("WHATSAPP_PHONE_NUMBER_ID")
     if not (token and number_id):
-        log.info("whatsapp (não configurado) para %s: %s", to, text)
+        print(f"\n[WhatsApp não configurado: mensagem que iria para {to}]\n{text}\n", flush=True)
         return
     r = httpx.post(f"https://graph.facebook.com/v21.0/{number_id}/messages", timeout=30,
                    headers={"Authorization": "Bearer " + token},
@@ -42,7 +46,7 @@ def send_whatsapp(to, text):
 
 
 def create_app(base_dir="base", db_path="agro.db", send=send_whatsapp):
-    app = FastAPI(title="Assistente agrícola no WhatsApp")
+    app = FastAPI(title="Assistente agrícola no WhatsApp", default_response_class=UTF8JSONResponse)
     base, store = rag.Base(base_dir), Store(db_path)
     link = lambda: os.environ.get("PAYMENT_LINK", "(link de pagamento do Asaas)")  # noqa: E731
 

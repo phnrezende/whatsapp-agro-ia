@@ -19,11 +19,25 @@ como mais menos ou mas sobre entre ate apos antes depois quando qual quais isso 
 pelos pelas sao ser ter tem foi muito muita pode deve meu minha seu sua the and""".split())
 NOT_FOUND = ("Não encontrei isso nos materiais técnicos que eu tenho. Para não te passar uma informação errada, "
              "procure um agrônomo ou a assistência técnica da sua região.")
+GREETING = ("Olá! Sou o assistente agrícola. Pode me perguntar sobre o manejo da sua lavoura, como calagem, "
+            "adubação e pragas, que eu respondo com base nos materiais técnicos.")
+GREETING_WORDS = set("oi ola opa salve eae eai e ai bom boa dia tarde noite tudo bem beleza".split())
+
+
+def words(text):
+    """Minúsculas, sem acento e sem pontuação: "Olá, Bom DIA!" vira ["ola", "bom", "dia"]."""
+    text = unicodedata.normalize("NFKD", text.lower()).encode("ascii", "ignore").decode()
+    return re.findall(r"[a-z0-9]+", text)
 
 
 def tokens(text):
-    text = unicodedata.normalize("NFKD", text.lower()).encode("ascii", "ignore").decode()
-    return [w for w in re.findall(r"[a-z0-9]+", text) if len(w) > 2 and w not in STOPWORDS]
+    return [w for w in words(text) if len(w) > 2 and w not in STOPWORDS]
+
+
+def is_greeting(text):
+    """Só cumprimento, sem pergunta junto: "oi, tudo bem?" sim; "bom dia, quando aplico calcário?" não."""
+    ws = words(text)
+    return bool(ws) and all(w in GREETING_WORDS for w in ws)
 
 
 def read_text(path):
@@ -80,6 +94,8 @@ def answer(base, question, user):
         r.raise_for_status()
         return r.json()["answer"]
 
+    if is_greeting(question):  # no Dify, o próprio agente cumprimenta; aqui a busca não teria o que achar
+        return GREETING
     found = base.search(question)
     if not found:
         return NOT_FOUND
